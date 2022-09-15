@@ -29,6 +29,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
         if(global_off || allowed_tabs.has(details.tabId)){
             return;
         }
+        return doRemove(details,'requestHeaders','cookie');
 },filters,['blocking', 'requestHeaders']);
 
 browser.webRequest.onHeadersReceived.addListener(
