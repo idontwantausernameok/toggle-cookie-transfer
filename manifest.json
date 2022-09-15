@@ -1,0 +1,16 @@
+{
+  "author": "igorlogius",
+  "background": {
+    "scripts": [ "background.js"]
+  },
+  "browser_action": { 
+  },
+  "manifest_version": 2,
+  "name": "Toggle Cookie Transfer",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ],
+  "version": "1.0.0"
+}
