@@ -9,7 +9,7 @@ function removeHeader(headers, name) {
   if(headers){
   for (let i = 0; i < headers.length; i++) {
     if (headers[i].name.toLowerCase() === name) {
-      console.log('dropped', name, headers[i].value);
+      console.debug('[DEBUG] dropped:', name, headers[i].value);
       headers.splice(i, 1);
       // dont break! might be set mutliple times
     }
@@ -52,3 +52,27 @@ browser.browserAction.onClicked.addListener( (tab) => {
     }
 });
 
+browser.tabs.onUpdated.addListener ( (tabId, changeInfo, tabInfo) => {
+    if(changeInfo.status === 'complete' && /^http/.test(tabInfo.url)) {
+        browser.browserAction.enable(tabId);
+        if( allowed_tabs.has(tabId) ){
+            browser.browserAction.setBadgeText({tabId, text: 'OFF'});
+            browser.browserAction.setBadgeBackgroundColor({tabId, color: "red"});
+        }else{
+            browser.browserAction.setBadgeText({tabId, text: 'ON'});
+            browser.browserAction.setBadgeBackgroundColor({tabId, color: "green"});
+        }
+    }else{
+        browser.browserAction.disable(tabId);
+    }
+}, { properties: ["status"] });
+
+browser.browserAction.disable();
+
+
+// copy the state of the openerTab - should make things easier for people
+browser.tabs.onCreated.addListener( (tab) => {
+    if( allowed_tabs.has(tab.openerTabId) ){
+        allowed_tabs.add(tab.id);
+    }
+});
