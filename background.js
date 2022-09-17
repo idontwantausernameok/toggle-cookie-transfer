@@ -3,7 +3,6 @@
 const filters = { urls: ['<all_urls>'] };
 
 let allowed_tabs = new Set();
-let global_off = false; //
 
 function removeHeader(headers, name) {
   if(headers){
@@ -15,29 +14,27 @@ function removeHeader(headers, name) {
     }
   }
  }
+ return headers;
 }
 
 function doRemove(details, detailsParam, headername){
-    removeHeader(details.requestHeaders, headername);
     let ret = {};
-    ret[detailsParam] = details[detailsParam];
+    ret[detailsParam] = removeHeader(details.requestHeaders, headername);
     return ret;
 }
 
 browser.webRequest.onBeforeSendHeaders.addListener(
     (details) =>  {
-        if(global_off || allowed_tabs.has(details.tabId)){
-            return;
+        if(!allowed_tabs.has(details.tabId)){
+            return doRemove(details,'requestHeaders','cookie');
         }
-        return doRemove(details,'requestHeaders','cookie');
 },filters,['blocking', 'requestHeaders']);
 
 browser.webRequest.onHeadersReceived.addListener(
     (details) => {
-        if(global_off || allowed_tabs.has(details.tabId)){
-            return;
+        if(!allowed_tabs.has(details.tabId)){
+            return doRemove(details,'responseHeaders','set-cookie');
         }
-        return doRemove(details,'responseHeaders','set-cookie');
 },filters,['blocking', 'responseHeaders']);
 
 browser.browserAction.onClicked.addListener( (tab) => {
